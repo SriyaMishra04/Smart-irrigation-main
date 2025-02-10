@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Usage Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #03A9F4;
+            --accent-color: #E3F2FD;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .sidebar {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-right: 20px;
+        }
+        .main-content {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        #waterUsageChart {
+            margin-top: 20px;
+        }
+        .water-animation {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            background: var(--primary-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Input Features</h2>
+            <div class="input-group">
+                <label for="soilMoisture">Soil Moisture</label>
+                <input type="number" id="soilMoisture" value="0.3" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="soilTemperature">Soil Temperature</label>
+                <input type="number" id="soilTemperature" value="20.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="airTemperature">Air Temperature</label>
+                <input type="number" id="airTemperature" value="25.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="humidity">Humidity</label>
+                <input type="number" id="humidity" value="0.5" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="ph">pH</label>
+                <input type="number" id="ph" value="6.5" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="cropType">Crop Type</label>
+                <input type="number" id="cropType" value="1.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="solarRadiation">Solar Radiation</label>
+                <input type="number" id="solarRadiation" value="300.0" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="windSpeed">Wind Speed</label>
+                <input type="number" id="windSpeed" value="5.0" step="0.1">
+            </div>
+            <button onclick="predictWaterUsage()">Predict Water Usage</button>
+        </div>
+        <div class="main-content">
+            <h1>Water Usage Prediction</h1>
+            <div class="water-animation"></div>
+            <div class="result" id="prediction"></div>
+            <canvas id="waterUsageChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+
+        function predictWaterUsage() {
+            // Collect input values
+            const inputs = {
+                soilMoisture: parseFloat(document.getElementById('soilMoisture').value),
+                soilTemperature: parseFloat(document.getElementById('soilTemperature').value),
+                airTemperature: parseFloat(document.getElementById('airTemperature').value),
+                humidity: parseFloat(document.getElementById('humidity').value),
+                ph: parseFloat(document.getElementById('ph').value),
+                cropType: parseFloat(document.getElementById('cropType').value),
+                solarRadiation: parseFloat(document.getElementById('solarRadiation').value),
+                windSpeed: parseFloat(document.getElementById('windSpeed').value)
+            };
+
+            // Simulate ML prediction (replace with actual model when available)
+            const prediction = simulatePrediction(inputs);
+            
+            document.getElementById('prediction').innerText = `Predicted Water Usage: ${prediction.toFixed(2)} units`;
+            
+            updateChart(prediction);
+        }
+
+        function simulatePrediction(inputs) {
+            // This is a simplified simulation of the model's prediction
+            // Replace this with actual model prediction when implementing in Python
+            return (
+                inputs.soilMoisture * 10 +
+                inputs.soilTemperature * 0.5 +
+                inputs.airTemperature * 0.3 +
+                inputs.humidity * 15 +
+                inputs.ph * 2 +
+                inputs.cropType * 5 +
+                inputs.solarRadiation * 0.02 +
+                inputs.windSpeed * 0.5
+            );
+        }
+
+        function updateChart(newPrediction) {
+            const ctx = document.getElementById('waterUsageChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Predicted Water Usage'],
+                    datasets: [{
+                        label: 'Water Usage Units',
+                        data: [newPrediction],
+                        backgroundColor: 'rgba(33, 150, 243, 0.6)',
+                        borderColor: 'rgba(33, 150, 243, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize with default prediction
+        predictWaterUsage();
+
+
+        async function predictWaterUsage() {
+            // Collect input values
+            const inputs = {
+                SoilMoisture: parseFloat(document.getElementById('soilMoisture').value),
+                SoilTemperature: parseFloat(document.getElementById('soilTemperature').value),
+                AirTemperature: parseFloat(document.getElementById('airTemperature').value),
+                Humidity: parseFloat(document.getElementById('humidity').value),
+                pH: parseFloat(document.getElementById('ph').value),
+                CropType: parseFloat(document.getElementById('cropType').value),
+                SolarRadiation: parseFloat(document.getElementById('solarRadiation').value),
+                WindSpeed: parseFloat(document.getElementById('windSpeed').value)
+            };
+        
+            try {
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(inputs)
+                });
+                const data = await response.json();
+                const prediction = data.prediction;
+                
+                document.getElementById('prediction').innerText = `Predicted Water Usage: ${prediction.toFixed(2)} units`;
+                updateChart(prediction);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('prediction').innerText = 'Error making prediction';
+            }
+        }
+    </script>
+</body>
+</html>
